@@ -59,6 +59,17 @@ This workspace is a microservices-based Citizen Services platform (`civicpulse-m
 
 ## 📜 Session Log
 
+### 2026-08-15 — Comprehensive Notification System & Lifecycle Events
+- **Seeded Notification Events**: Added [DataInitializer.java](file:///d:/Smart-Governence-Platform-main/notification-service/src/main/java/com/civicpulse/notification_service/config/DataInitializer.java) in `notification-service` to seed rich lifecycle notifications for Citizens, Officers, and Admin.
+- **Added Notification Types**: Integrated notifications for:
+  1. **`Application Submitted`** (`APPLICATION_SUBMITTED`)
+  2. **`Approved by Officer`** (`OFFICER_APPROVED`)
+  3. **`Approved by Admin`** (`ADMIN_APPROVED`)
+  4. **`Downloaded Your Report`** (`REPORT_DOWNLOADED`)
+  5. **`Welfare Benefit Credited`** (`WELFARE_CREDITED` / DBT)
+- **Updated Notification Queries & Endpoints**: Enhanced [NotificationRepository.java](file:///d:/Smart-Governence-Platform-main/notification-service/src/main/java/com/civicpulse/notification_service/repository/NotificationRepository.java) and [NotificationController.java](file:///d:/Smart-Governence-Platform-main/notification-service/src/main/java/com/civicpulse/notification_service/controller/NotificationController.java) to support flexible role-based query matches and direct `POST /api/notifications` posting.
+- **Pushed to GitHub**: Committed and pushed changes to [https://github.com/tejal-ambre26/Smart-Governence-Platform.git](https://github.com/tejal-ambre26/Smart-Governence-Platform.git).
+
 ### 2026-08-15 — AI Analysis Page Streamlined & Pushed to GitHub
 - **Streamlined AI Analysis UI**: Updated [AiAnalysisPage.jsx](file:///d:/Smart-Governence-Platform-main/citizen-frontend/src/pages/AiAnalysisPage.jsx) to automatically connect to the configured Google Gemini API key without prompting the user for an API key paste banner or modal.
 - **Pushed Updates to GitHub**: Successfully committed and pushed the streamlined code to [https://github.com/tejal-ambre26/Smart-Governence-Platform.git](https://github.com/tejal-ambre26/Smart-Governence-Platform.git).
