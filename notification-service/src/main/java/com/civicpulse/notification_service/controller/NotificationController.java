@@ -29,16 +29,25 @@ public class NotificationController {
             }
             List<Notification> list;
             if (recipient.toLowerCase().contains("admin") || (username != null && username.toLowerCase().contains("admin"))) {
-                list = notificationRepository.findForAdmin(recipient);
-            } else if (username != null && !username.isBlank() && !username.equalsIgnoreCase(recipient)) {
-                list = notificationRepository.findForUserOrSub(recipient, username);
+                list = notificationRepository.findForAdmin(recipient, username != null ? username : recipient);
+            } else if (recipient.toLowerCase().contains("officer") || (username != null && username.toLowerCase().contains("officer"))) {
+                list = notificationRepository.findForOfficer(recipient, username != null ? username : recipient);
             } else {
-                list = notificationRepository.findByRecipientOrderByCreatedAtDesc(recipient);
+                list = notificationRepository.findForUserOrSub(recipient, username != null ? username : recipient);
             }
             return ResponseEntity.ok(list != null ? list : Collections.emptyList());
         } catch (Exception e) {
             return ResponseEntity.ok(Collections.emptyList());
         }
+    }
+
+    @PostMapping
+    public ResponseEntity<Notification> createNotification(@RequestBody Notification notification) {
+        if (notification.getCreatedAt() == null) {
+            notification.setCreatedAt(java.time.LocalDateTime.now());
+        }
+        Notification saved = notificationRepository.save(notification);
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}/read")

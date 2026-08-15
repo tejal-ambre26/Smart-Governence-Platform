@@ -84,8 +84,25 @@ export default function AiAnalysisPage() {
     }
   };
 
-  const exportReport = () => {
+  const exportReport = async () => {
     if (!aiData) return;
+
+    try {
+      const username = keycloak.tokenParsed?.preferred_username || 'admin';
+      const sub = keycloak.tokenParsed?.sub || username;
+      await api.post('/notification-service/api/notifications', {
+        recipient: sub,
+        eventType: 'REPORT_DOWNLOADED',
+        title: 'Downloaded Your Report',
+        message: 'You downloaded official Executive AI Governance Analytics Report.',
+        relatedEntityId: 'REPORT-AI-' + Date.now(),
+        relatedEntityType: 'REPORT',
+        readStatus: false,
+        recipientRole: 'ADMIN',
+        createdAt: new Date().toISOString()
+      }).catch(() => {});
+    } catch (e) {}
+
     const content = `==========================================================
 SMART GOVERNANCE PLATFORM — AI ANALYSIS & INSIGHTS REPORT
 Generated: ${new Date().toLocaleString()}
