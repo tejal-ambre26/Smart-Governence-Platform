@@ -1,22 +1,16 @@
 import { useState, useEffect } from 'react';
 import AppShell from '../components/AppShell.jsx';
 import PageLoader from '../components/PageLoader.jsx';
-import { SectionCard } from '../components/SectionCard.jsx';
 import { Badge } from '../components/Badge.jsx';
 import api from '../api.js';
 import { toast } from 'sonner';
 import {
-  Brain, Sparkles, Key, RefreshCw, AlertTriangle, ShieldCheck, CheckCircle2,
-  TrendingUp, MessageSquare, Send, HelpCircle, FileText, Download, Landmark,
-  Building, Users, Lightbulb, Zap, Check, Lock, ChevronRight
+  Brain, Sparkles, RefreshCw, AlertTriangle, CheckCircle2,
+  TrendingUp, MessageSquare, Send, Download, Landmark,
+  Building, Lightbulb
 } from 'lucide-react';
 
 export default function AiAnalysisPage() {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
-  const [isSavedKey, setIsSavedKey] = useState(() => Boolean(localStorage.getItem('gemini_api_key')));
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [keyInput, setKeyInput] = useState('');
-
   const [loading, setLoading] = useState(true);
   const [aiData, setAiData] = useState(null);
   
@@ -34,14 +28,11 @@ export default function AiAnalysisPage() {
   const fetchAiAnalysis = async () => {
     setLoading(true);
     try {
-      const activeKey = localStorage.getItem('gemini_api_key') || '';
-      const headers = activeKey ? { 'X-Gemini-Api-Key': activeKey } : {};
-      
       let res;
       try {
-        res = await api.post('/reporting-service/api/ai/governance/analyze', {}, { headers });
+        res = await api.post('/reporting-service/api/ai/governance/analyze', {});
       } catch (err1) {
-        res = await api.post('/api/ai/governance/analyze', {}, { headers });
+        res = await api.post('/api/ai/governance/analyze', {});
       }
       
       setAiData(res.data);
@@ -57,28 +48,6 @@ export default function AiAnalysisPage() {
     fetchAiAnalysis();
   }, []);
 
-  const handleSaveKey = () => {
-    const trimmed = keyInput.trim();
-    if (!trimmed) {
-      toast.error("Please enter a valid Gemini API Key.");
-      return;
-    }
-    localStorage.setItem('gemini_api_key', trimmed);
-    setApiKey(trimmed);
-    setIsSavedKey(true);
-    setShowKeyModal(false);
-    toast.success("Gemini API Key saved successfully!");
-    fetchAiAnalysis();
-  };
-
-  const handleClearKey = () => {
-    localStorage.removeItem('gemini_api_key');
-    setApiKey('');
-    setIsSavedKey(false);
-    toast.info("Gemini API Key removed. Using server configuration.");
-    fetchAiAnalysis();
-  };
-
   const handleAskQuestion = async (e) => {
     e?.preventDefault();
     if (!chatQuestion.trim() || chatLoading) return;
@@ -90,14 +59,11 @@ export default function AiAnalysisPage() {
     setChatLoading(true);
 
     try {
-      const activeKey = localStorage.getItem('gemini_api_key') || '';
-      const headers = activeKey ? { 'X-Gemini-Api-Key': activeKey } : {};
-      
       let res;
       try {
-        res = await api.post('/reporting-service/api/ai/governance/chat', { question: q }, { headers });
+        res = await api.post('/reporting-service/api/ai/governance/chat', { question: q });
       } catch (err1) {
-        res = await api.post('/api/ai/governance/chat', { question: q }, { headers });
+        res = await api.post('/api/ai/governance/chat', { question: q });
       }
 
       const aiText = res.data?.summary || 'Analysis complete.';
@@ -112,7 +78,7 @@ export default function AiAnalysisPage() {
     } catch (err) {
       console.error(err);
       toast.error("AI Assistant request failed.");
-      setChatMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error processing your query. Please check your Gemini API key or connection.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+      setChatMessages(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error processing your query.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
     } finally {
       setChatLoading(false);
     }
@@ -191,19 +157,6 @@ ${(aiData.welfareInsights || []).map((w, i) => `• ${w}`).join('\n')}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
             <button
-              onClick={() => { setKeyInput(apiKey); setShowKeyModal(true); }}
-              style={{
-                background: isSavedKey ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
-                color: isSavedKey ? '#6ee7b7' : '#fde68a',
-                border: `1px solid ${isSavedKey ? 'rgba(16, 185, 129, 0.4)' : 'rgba(245, 158, 11, 0.4)'}`,
-                borderRadius: 12, padding: '10px 18px', fontWeight: 800, fontSize: 13,
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s ease'
-              }}
-            >
-              <Key size={16} /> {isSavedKey ? 'Gemini Key Configured' : 'Paste Gemini API Key'}
-            </button>
-
-            <button
               onClick={fetchAiAnalysis}
               disabled={loading}
               style={{
@@ -230,124 +183,6 @@ ${(aiData.welfareInsights || []).map((w, i) => `• ${w}`).join('\n')}
             )}
           </div>
         </div>
-
-        {/* ── Key Setup Banner / Callout if not set ── */}
-        {!isSavedKey && (
-          <div style={{
-            background: '#fffbeb', border: '1.5px solid #fcd34d', borderRadius: 16, padding: '20px 24px',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Key size={22} />
-              </div>
-              <div>
-                <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#92400e' }}>
-                  Paste Your Google Gemini API Key for Live Custom AI Analysis
-                </h4>
-                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#b45309' }}>
-                  Paste your key directly here to run real-time generative intelligence on your municipal data.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <a 
-                href="https://aistudio.google.com/app/apikey" 
-                target="_blank" 
-                rel="noreferrer"
-                style={{ fontSize: 13, fontWeight: 800, color: '#d97706', textDecoration: 'underline' }}
-              >
-                Get Free Key from Google AI Studio ↗
-              </a>
-              <button
-                onClick={() => { setKeyInput(apiKey); setShowKeyModal(true); }}
-                style={{
-                  background: '#d97706', color: '#ffffff', border: 'none',
-                  borderRadius: 10, padding: '8px 18px', fontWeight: 800, fontSize: 13, cursor: 'pointer'
-                }}
-              >
-                Paste API Key Now
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── API Key Input Modal ── */}
-        {showKeyModal && (
-          <div style={{
-            position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
-          }}>
-            <div style={{
-              background: '#ffffff', borderRadius: 20, border: '1.5px solid #e2e8f0', width: '100%', maxWidth: 540,
-              padding: 28, boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 10, background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Key size={20} />
-                  </div>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Configure Gemini API Key</h3>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>Used exclusively for client-authenticated AI analysis</div>
-                  </div>
-                </div>
-                <button onClick={() => setShowKeyModal(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#94a3b8' }}>✕</button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: '#334155', textTransform: 'uppercase', marginBottom: 6 }}>
-                    Gemini API Key (Format: AIzaSy...)
-                  </label>
-                  <input
-                    type="password"
-                    value={keyInput}
-                    onChange={(e) => setKeyInput(e.target.value)}
-                    placeholder="Paste AIzaSy..."
-                    style={{
-                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #cbd5e1',
-                      fontSize: 14, fontFamily: 'monospace', outline: 'none'
-                    }}
-                  />
-                </div>
-
-                <div style={{ background: '#f8fafc', padding: 14, borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
-                  <strong>How to get a key:</strong>
-                  <ol style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-                    <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: '#4338ca', fontWeight: 700 }}>Google AI Studio</a></li>
-                    <li>Click <strong>Create API key</strong></li>
-                    <li>Copy and paste the generated key into the field above</li>
-                  </ol>
-                </div>
-
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 10 }}>
-                  {isSavedKey && (
-                    <button
-                      onClick={handleClearKey}
-                      style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '10px 16px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
-                    >
-                      Clear Saved Key
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setShowKeyModal(false)}
-                    style={{ background: '#f1f5f9', color: '#475569', border: 'none', padding: '10px 16px', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSaveKey}
-                    style={{ background: '#4338ca', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: 10, fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(67,56,202,0.3)' }}
-                  >
-                    Save & Analyze
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Main Content Loading State ── */}
         {loading ? (
