@@ -1,0 +1,59 @@
+services:
+  # ── 1. API Gateway Web Service ─────────────────────────────────────────────
+  - type: web
+    name: civicpulse-api-gateway
+    env: docker
+    dockerContext: ./api-gateway
+    dockerfilePath: ./api-gateway/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://civicpulse-eureka:8761/eureka/
+      - key: KEYCLOAK_ISSUER_URI
+        sync: false
+
+  # ── 2. Reporting & AI Microservice ─────────────────────────────────────────
+  - type: web
+    name: civicpulse-reporting-service
+    env: docker
+    dockerContext: ./reporting-service
+    dockerfilePath: ./reporting-service/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8087
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: civicpulse-db
+          property: connectionString
+
+  # ── 3. Grievance & SLA Microservice ────────────────────────────────────────
+  - type: web
+    name: civicpulse-grievance-service
+    env: docker
+    dockerContext: ./grievance-service
+    dockerfilePath: ./grievance-service/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8083
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: civicpulse-db
+          property: connectionString
+
+databases:
+  - name: civicpulse-db
+    databaseName: civicpulse_db
+    user: civicpulse_user
+    plan: free

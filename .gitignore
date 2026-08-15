@@ -1,0 +1,38 @@
+# CivicPulse Repository Ignore Rules
+
+# Node modules
+node_modules/
+dist/
+.env
+**/.env
+*.env
+
+# Keycloak and Kafka servers (exclude heavy binaries)
+keycloak-26.6.4/
+kafka_2.13-4.1.1/
+kafka_data/
+logs/
+*.log
+ztorage/
+.tools/
+
+# Java / Maven compiles
+target/
+.mvn/
+mvnw
+mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE & OS files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db

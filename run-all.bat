@@ -1,0 +1,3 @@
+@echo off
+echo Starting Smart Governance Platform via PowerShell (Bypassing Execution Policy)...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-all.ps1"
